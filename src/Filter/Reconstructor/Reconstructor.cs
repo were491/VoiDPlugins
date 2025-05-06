@@ -29,7 +29,7 @@ namespace VoiDPlugins.Filter
             get => weight;
         }
 
-        [Property("Reset Delay"), Unit("ms"), DefaultPropertyValue(50.0f), ToolTip
+        [Property("Reset Delay"), Unit("ms"), DefaultPropertyValue(50.0d), ToolTip
         (
             "Default: 50ms\n\n" +
             "Defines the time in which no samples are received before EMA resets.\n" +
@@ -53,7 +53,7 @@ namespace VoiDPlugins.Filter
             else if (value is ITabletReport report)
             {
                 var truePoint = (lastAvg.HasValue && stopwatch.Restart() <= delay) ?
-                                ReverseEMAFunc(report.Position, lastAvg.Value, (float)EMAWeight) : report.Position;
+                                    ReverseEMAFunc(report.Position, lastAvg.Value, (float)EMAWeight) : report.Position;
                 lastAvg = report.Position;
                 report.Position = truePoint;
                 value = report;
