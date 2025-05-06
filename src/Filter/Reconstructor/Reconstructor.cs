@@ -13,7 +13,7 @@ namespace VoiDPlugins.Filter
         private Vector2? lastAvg;
         private float weight;
 
-        private TimeSpan delay;
+        private TimeSpan resetTime;
         private readonly HPETDeltaStopwatch stopwatch = new HPETDeltaStopwatch();
 
         [Property("EMA Weight"), DefaultPropertyValue(0.5f), ToolTip
@@ -29,16 +29,16 @@ namespace VoiDPlugins.Filter
             get => weight;
         }
 
-        [Property("Reset Delay"), Unit("ms"), DefaultPropertyValue(50.0d), ToolTip
+        [Property("Reset Time"), Unit("ms"), DefaultPropertyValue(100.0d), ToolTip
         (
-            "Default: 50ms\n\n" +
+            "Default: 100ms\n\n" +
             "Defines the time in which no samples are received before EMA resets.\n" +
             "Usually not required if tablet reports out-of-range."
         )]
-        public double ResetDelay
+        public double ResetTime
         {
-            set => delay = TimeSpan.FromMilliseconds(value);
-            get => delay.TotalMilliseconds;
+            set => resetTime = TimeSpan.FromMilliseconds(value);
+            get => resetTime.TotalMilliseconds;
         }
 
         public event Action<IDeviceReport>? Emit;
@@ -52,7 +52,7 @@ namespace VoiDPlugins.Filter
             }
             else if (value is ITabletReport report)
             {
-                var truePoint = (lastAvg.HasValue && stopwatch.Restart() <= delay) ?
+                var truePoint = (stopwatch.Restart() <= resetTime && lastAvg.HasValue) ?
                                     ReverseEMAFunc(report.Position, lastAvg.Value, (float)EMAWeight) : report.Position;
                 lastAvg = report.Position;
                 report.Position = truePoint;
